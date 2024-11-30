@@ -542,13 +542,13 @@ static void determine_valid_ioctls(struct video_device *vdev)
 			      V4L2_CAP_META_OUTPUT;
 	DECLARE_BITMAP(valid_ioctls, BASE_VIDIOC_PRIVATE);
 	const struct v4l2_ioctl_ops *ops = vdev->ioctl_ops;
-	bool is_vid = vdev->vfl_type == VFL_TYPE_VIDEO &&
+	bool is_vid = vdev->vfl_type == VFL_TYPE_GRABBER &&
 		      (vdev->device_caps & vid_caps);
 	bool is_vbi = vdev->vfl_type == VFL_TYPE_VBI;
 	bool is_radio = vdev->vfl_type == VFL_TYPE_RADIO;
 	bool is_sdr = vdev->vfl_type == VFL_TYPE_SDR;
 	bool is_tch = vdev->vfl_type == VFL_TYPE_TOUCH;
-	bool is_meta = vdev->vfl_type == VFL_TYPE_VIDEO &&
+	bool is_meta = vdev->vfl_type == VFL_TYPE_GRABBER &&
 		       (vdev->device_caps & meta_caps);
 	bool is_rx = vdev->vfl_dir != VFL_DIR_TX;
 	bool is_tx = vdev->vfl_dir != VFL_DIR_RX;
