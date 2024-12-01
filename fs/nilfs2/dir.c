@@ -360,17 +360,19 @@ nilfs_find_entry(struct inode *dir, const struct qstr *qstr,
 	do {
 		char *kaddr = nilfs_get_page(dir, n, &page);
 
-		if (IS_ERR(kaddr))
-			return ERR_CAST(kaddr);
-
-		de = (struct nilfs_dir_entry *)kaddr;
-		kaddr += nilfs_last_byte(dir, n) - reclen;
-		while ((char *)de <= kaddr) {
-			if (de->rec_len == 0) {
-				nilfs_error(dir->i_sb,
-					    "zero-length directory entry");
-				nilfs_put_page(page);
-				goto out;
+		if (!IS_ERR(kaddr)) {
+			de = (struct nilfs_dir_entry *)kaddr;
+			kaddr += nilfs_last_byte(dir, n) - reclen;
+			while ((char *) de <= kaddr) {
+				if (de->rec_len == 0) {
+					nilfs_error(dir->i_sb,
+						"zero-length directory entry");
+					nilfs_put_page(page);
+					goto out;
+				}
+				if (nilfs_match(namelen, name, de))
+					goto found;
+				de = nilfs_next_entry(de);
 			}
 			if (nilfs_match(namelen, name, de))
 				goto found;

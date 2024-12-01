@@ -1349,8 +1349,8 @@ acpi_ec_space_handler(u32 function, acpi_physical_address address,
 
 	for (i = 0; i < bytes; ++i, ++address, ++value) {
 		result = (function == ACPI_READ) ?
-			acpi_ec_read_unlocked(ec, address, value) :
-			acpi_ec_write_unlocked(ec, address, *value);
+			acpi_ec_read(ec, address, value) :
+			acpi_ec_write(ec, address, *value);
 		if (result < 0)
 			break;
 	}
