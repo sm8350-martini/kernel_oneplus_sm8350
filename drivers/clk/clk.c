@@ -37,10 +37,6 @@ static HLIST_HEAD(clk_root_list);
 static HLIST_HEAD(clk_orphan_list);
 static LIST_HEAD(clk_notifier_list);
 
-/* List of registered clks that use runtime PM */
-static HLIST_HEAD(clk_rpm_list);
-static DEFINE_MUTEX(clk_rpm_list_lock);
-
 static const struct hlist_head *all_lists[] = {
 	&clk_root_list,
 	&clk_orphan_list,
@@ -1406,13 +1402,6 @@ static int clk_disable_unused(void)
 
 	pr_info("clk: Disabling unused clocks\n");
 
-	ret = clk_pm_runtime_get_all();
-	if (ret)
-		return ret;
-	/*
-	 * Grab the prepare lock to keep the clk topology stable while iterating
-	 * over clks.
-	 */
 	clk_prepare_lock();
 
 	hlist_for_each_entry(core, &clk_root_list, child_node)
@@ -4128,12 +4117,6 @@ static void clk_core_free_parent_map(struct clk_core *core)
 static void __clk_release(struct kref *ref)
 {
 	struct clk_core *core = container_of(ref, struct clk_core, ref);
-
-	if (core->rpm_enabled) {
-		mutex_lock(&clk_rpm_list_lock);
-		hlist_del(&core->rpm_node);
-		mutex_unlock(&clk_rpm_list_lock);
-	}
 
 	clk_core_free_parent_map(core);
 	kfree_const(core->name);
